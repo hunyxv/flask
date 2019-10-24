@@ -248,7 +248,7 @@ class Flask(_PackageBoundObject):
     #:
     #: This attribute can also be configured from the config with the
     #: ``TESTING`` configuration key.  Defaults to ``False``.
-    testing = ConfigAttribute("TESTING")
+    testing = ConfigAttribute("TESTING")  # ConfigAttriute 是一个描述其， 对 该配置的操作都映射到 app.config
 
     #: If a secret key is set, cryptographic components can use this to
     #: sign cookies and other things. Set this to a complex random value
