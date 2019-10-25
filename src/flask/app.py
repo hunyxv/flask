@@ -320,7 +320,7 @@ class Flask(_PackageBoundObject):
     #: Default configuration parameters.
     default_config = ImmutableDict(
         {
-            "ENV": None,
+            "ENV": None,# test
             "DEBUG": None,
             "TESTING": False,
             "PROPAGATE_EXCEPTIONS": None,
