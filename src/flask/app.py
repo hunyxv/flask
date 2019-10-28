@@ -320,35 +320,36 @@ class Flask(_PackageBoundObject):
     #: Default configuration parameters.
     default_config = ImmutableDict(
         {
-            "ENV": None,# test
-            "DEBUG": None,
-            "TESTING": False,
-            "PROPAGATE_EXCEPTIONS": None,
-            "PRESERVE_CONTEXT_ON_EXCEPTION": None,
-            "SECRET_KEY": None,
-            "PERMANENT_SESSION_LIFETIME": timedelta(days=31),
-            "USE_X_SENDFILE": False,
-            "SERVER_NAME": None,
-            "APPLICATION_ROOT": "/",
-            "SESSION_COOKIE_NAME": "session",
+            "ENV": None, # 对应于环境变量 ‘FLASK_ENV’ 用来告诉Flask当前应用所运行的环境，有两个值，分别是 “production” 和 “development”，默认缺省值是“production”。Flask自身和第三方扩展插件可能会基于此变量值改变自己的行为。如果是“development”，Flask 会开启调试模式，代码变更时会自动重启，适合在开发的过程设置。
+            "DEBUG": None, # 对应于环境变量 ‘FLASK_DEBUG’, 默认值是 TRUE
+            "TESTING": False,  # 默认 false 开启测试模式。异常会被广播而不是被应用的错误处理器处理。扩展可能也会为 了测试方便而改变它们的行为。
+            "PROPAGATE_EXCEPTIONS": None, # 默认 None，异常会重新引发而不是被应用的错误处理器处理。在没有设置本变量的情况下， 当 TESTING 或 DEBUG 开启时，本变量隐式地为真。
+            "PRESERVE_CONTEXT_ON_EXCEPTION": None, 
+            "SECRET_KEY": None,  # 密钥用于会话 cookie 的安全签名，并可用于应用或者扩展的其他安全需求。本 变量应当是一个字节型长随机字符串，
+            "PERMANENT_SESSION_LIFETIME": timedelta(days=31),   # cookie 的有效期
+            "USE_X_SENDFILE": False, # 当使用 Flask 提供文件服务时，设置 X-Sendfile 头部。有些网络服务器， 如 Apache ，识别这种头部，以利于更有效地提供数据服务。本变量只有使用这 种服务器时才有效。
+            "SERVER_NAME": None,  # 子域路由匹配需要本变量，url_for 生成绝对 url
+            "APPLICATION_ROOT": "/",  # 如果应用不占用完整的域名或子域名，这个选项可以被设置为应用所在的路径。这个路径也会用于会话 cookie 的路径值。如果直接使用域名，则留作 None
+            "SESSION_COOKIE_NAME": "session", # 认可会话 cookie 的域的匹配规则。如果本变量没有设置，那么 cookie 会被 SERVER_NAME 的所有子域认可。如果本变量设置为 False ，那么 cookie 域不会被设置。
             "SESSION_COOKIE_DOMAIN": None,
             "SESSION_COOKIE_PATH": None,
             "SESSION_COOKIE_HTTPONLY": True,
-            "SESSION_COOKIE_SECURE": False,
+            "SESSION_COOKIE_SECURE": False, # 如果 cookie 标记为“ secure ”，那么浏览器只会使用基于 HTTPS 的请求发 送 cookie 。应用必须使用 HTTPS 服务来启用本变量。
             "SESSION_COOKIE_SAMESITE": None,
             "SESSION_REFRESH_EACH_REQUEST": True,
-            "MAX_CONTENT_LENGTH": None,
+            "MAX_CONTENT_LENGTH": None,  # 如果设置为字节数， Flask 会拒绝内容长度大于此值的请求进入，并返回一个 413 状态码
             "SEND_FILE_MAX_AGE_DEFAULT": timedelta(hours=12),
             "TRAP_BAD_REQUEST_ERRORS": None,
             "TRAP_HTTP_EXCEPTIONS": False,
             "EXPLAIN_TEMPLATE_LOADING": False,
             "PREFERRED_URL_SCHEME": "http",
             "JSON_AS_ASCII": True,
-            "JSON_SORT_KEYS": True,
-            "JSONIFY_PRETTYPRINT_REGULAR": False,
+            "JSON_SORT_KEYS": True, # 按字母排序 JSON 对象的键。有利于缓存
+            "JSONIFY_PRETTYPRINT_REGULAR": False, # jsonify 响应会输出新行、空格和缩进以便于阅读。在调试模式下总是启用 的。
             "JSONIFY_MIMETYPE": "application/json",
             "TEMPLATES_AUTO_RELOAD": None,
             "MAX_COOKIE_SIZE": 4093,
+            # “PREFERRED_URL_SCHEME” # 通知应用其所绑定的主机和端口。子域路由匹配需要本变量。
         }
     )
 
@@ -402,9 +403,9 @@ class Flask(_PackageBoundObject):
         self,
         import_name,
         static_url_path=None,
-        static_folder="static",
-        static_host=None,
-        host_matching=False,
+        static_folder="static",  #  static_url_path / static_folder / static_host / host_matching 组合可以访问远程主机执行目录下的静态资源
+        static_host=None,    # 提供静态文件的主机的地址， 使用 static_host 时要传递 host_matching 访问方法有(OPTIONS, HEAD, GET)，
+        host_matching=False,  #  host_matching 和 static_host 组合更改静态资源的访问地址(主机:端口)
         subdomain_matching=False,
         template_folder="templates",
         instance_path=None,
@@ -452,7 +453,7 @@ class Flask(_PackageBoundObject):
         #:
         #: To register an error handler, use the :meth:`errorhandler`
         #: decorator.
-        self.error_handler_spec = {}
+        self.error_handler_spec = {}                                             ### errorhandler
 
         #: A list of functions that are called when :meth:`url_for` raises a
         #: :exc:`~werkzeug.routing.BuildError`.  Each function registered here
@@ -494,7 +495,7 @@ class Flask(_PackageBoundObject):
         #: :meth:`teardown_request` decorator.
         #:
         #: .. versionadded:: 0.7
-        self.teardown_request_funcs = {}
+        self.teardown_request_funcs = {}        ## 处理一些错误                     # 这里有一些说明： https://blog.csdn.net/regandu/article/details/80239543  https://blog.csdn.net/weixin_33843409/article/details/91445388
 
         #: A list of functions that are called when the application context
         #: is destroyed.  Since the application context is also torn down
@@ -511,7 +512,7 @@ class Flask(_PackageBoundObject):
         #: :meth:`url_value_preprocessor`.
         #:
         #: .. versionadded:: 0.7
-        self.url_value_preprocessors = {}
+        self.url_value_preprocessors = {}  # 在 url 匹配传参时比如 /user/<id> 一但匹配到就执行这里面的函数，例子 https://www.cnblogs.com/iamluoli/p/11202234.html
 
         #: A dictionary with lists of functions that can be used as URL value
         #: preprocessors.  The key ``None`` here is used for application wide
@@ -523,7 +524,7 @@ class Flask(_PackageBoundObject):
         #: automatically again that were removed that way.
         #:
         #: .. versionadded:: 0.7
-        self.url_default_functions = {}
+        self.url_default_functions = {}  # url_for时调用， 如果在 执行 url_value_preprocessors 时将url参数pop出，获取有其他需求是调用 https://www.cnblogs.com/iamluoli/p/11202234.html
 
         #: A dictionary with list of functions that are called without argument
         #: to populate the template context.  The key of the dictionary is the
@@ -537,7 +538,7 @@ class Flask(_PackageBoundObject):
         #: when a shell context is created.
         #:
         #: .. versionadded:: 0.11
-        self.shell_context_processors = []
+        self.shell_context_processors = []   # shell 上下文创建时执行的函数
 
         #: all the attached blueprints in a dictionary by name.  Blueprints
         #: can be attached multiple times so this dictionary does not tell
@@ -561,7 +562,7 @@ class Flask(_PackageBoundObject):
         #: ``'foo'``.
         #:
         #: .. versionadded:: 0.7
-        self.extensions = {}
+        self.extensions = {}    #　存放第三方扩展对象的地方
 
         #: The :class:`~werkzeug.routing.Map` for this instance.  You can use
         #: this to change the routing converters after the class was created
