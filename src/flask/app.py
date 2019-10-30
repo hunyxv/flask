@@ -651,7 +651,7 @@ class Flask(_PackageBoundObject):
             return rv
         return self.debug
 
-    @locked_cached_property
+    @locked_cached_property        # 描述器 -- 延迟计算属性并将第一次计算的结果缓存起来
     def logger(self):
         """A standard Python :class:`~logging.Logger` for the app, with
         the same name as :attr:`name`.
@@ -678,7 +678,7 @@ class Flask(_PackageBoundObject):
         """
         return create_logger(self)
 
-    @locked_cached_property
+    @locked_cached_property       # 描述器 -- 延迟计算属性并将第一次计算的结果缓存起来
     def jinja_env(self):
         """The Jinja environment used to load templates.
 
@@ -714,7 +714,7 @@ class Flask(_PackageBoundObject):
         defaults["DEBUG"] = get_debug_flag()
         return self.config_class(root_path, defaults)
 
-    def auto_find_instance_path(self):
+    def auto_find_instance_path(self):                               # 自动获取 instance 文件路径
         """Tries to locate the instance path if it was not provided to the
         constructor of the application class.  It will basically calculate
         the path to a folder named ``instance`` next to your main file or
@@ -727,7 +727,7 @@ class Flask(_PackageBoundObject):
             return os.path.join(package_path, "instance")
         return os.path.join(prefix, "var", self.name + "-instance")
 
-    def open_instance_resource(self, resource, mode="rb"):
+    def open_instance_resource(self, resource, mode="rb"):  # 只读打开 instance 文件
         """Opens a resource from the application's instance folder
         (:attr:`instance_path`).  Otherwise works like
         :meth:`open_resource`.  Instance resources can also be opened for
@@ -740,7 +740,7 @@ class Flask(_PackageBoundObject):
         return open(os.path.join(self.instance_path, resource), mode)
 
     @property
-    def templates_auto_reload(self):
+    def templates_auto_reload(self):   # 自动重新加载模板文件配置项
         """Reload templates when they are changed. Used by
         :meth:`create_jinja_environment`.
 
@@ -751,14 +751,14 @@ class Flask(_PackageBoundObject):
             This property was added but the underlying config and behavior
             already existed.
         """
-        rv = self.config["TEMPLATES_AUTO_RELOAD"]
-        return rv if rv is not None else self.debug
+        rv = self.config["TEMPLATES_AUTO_RELOAD"]   
+        return rv if rv is not None else self.debug    # debug 模式下为True
 
-    @templates_auto_reload.setter
+    @templates_auto_reload.setter                   # 设置 ‘自动重新加载模板’ 配置
     def templates_auto_reload(self, value):
         self.config["TEMPLATES_AUTO_RELOAD"] = value
 
-    def create_jinja_environment(self):
+    def create_jinja_environment(self):         # 创建 jinja 环境
         """Create the Jinja environment based on :attr:`jinja_options`
         and the various Jinja-related methods of the app. Changing
         :attr:`jinja_options` after this will have no effect. Also adds
@@ -773,10 +773,10 @@ class Flask(_PackageBoundObject):
         options = dict(self.jinja_options)
 
         if "autoescape" not in options:
-            options["autoescape"] = self.select_jinja_autoescape
+            options["autoescape"] = self.select_jinja_autoescape    # bool  对需要转义的文件进行筛选 ‘html htm xml xhtml’，jinja 自动转义功能
 
         if "auto_reload" not in options:
-            options["auto_reload"] = self.templates_auto_reload
+            options["auto_reload"] = self.templates_auto_reload     # bool 是否 自动 reload
 
         rv = self.jinja_environment(self, **options)
         rv.globals.update(
@@ -1243,7 +1243,7 @@ class Flask(_PackageBoundObject):
         # methods we can use that instead.  If neither exists, we go with
         # a tuple of only ``GET`` as default.
         if methods is None:
-            methods = getattr(view_func, "methods", None) or ("GET",)
+            methods = getattr(view_func, "methods", None) or ("GET",)     # 一个视图函数默认的请求方式是 GET
         if isinstance(methods, string_types):
             raise TypeError(
                 "Allowed methods have to be iterables of strings, "
@@ -1289,7 +1289,7 @@ class Flask(_PackageBoundObject):
         given URL rule.  This does the same thing as :meth:`add_url_rule`
         but is intended for decorator usage::
 
-            @app.route('/')
+            @app.route('/')    # ‘/’ : rule ; index: f
             def index():
                 return 'Hello World'
 
@@ -1676,7 +1676,7 @@ class Flask(_PackageBoundObject):
         return f
 
     @setupmethod
-    def url_defaults(self, f):
+    def url_defaults(self, f):   # url处理器的， https://www.cnblogs.com/iamluoli/p/11202234.html
         """Callback function for URL defaults for all view functions of the
         application.  It's called with the endpoint and values and should
         update the values passed in place.
@@ -2133,7 +2133,7 @@ class Flask(_PackageBoundObject):
 
         return rv
 
-    def create_url_adapter(self, request):
+    def create_url_adapter(self, request):   # 创建 url 转换器
         """Creates a URL adapter for the given request. The URL adapter
         is created at a point where the request context is not yet set
         up so the request is passed explicitly.
@@ -2148,7 +2148,7 @@ class Flask(_PackageBoundObject):
             :data:`SERVER_NAME` no longer implicitly enables subdomain
             matching. Use :attr:`subdomain_matching` instead.
         """
-        if request is not None:
+        if request is not None:       # 在这里可以看出 url_map 是跟去 request 上下文来转换的    
             # If subdomain matching is disabled (the default), use the
             # default subdomain in all cases. This should be the default
             # in Werkzeug but it currently does not have that feature.
@@ -2178,9 +2178,9 @@ class Flask(_PackageBoundObject):
 
         .. versionadded:: 0.7
         """
-        funcs = self.url_default_functions.get(None, ())
+        funcs = self.url_default_functions.get(None, ()) # url_default_functions
         if "." in endpoint:
-            bp = endpoint.rsplit(".", 1)[0]
+            bp = endpoint.rsplit(".", 1)[0]                         # 例如 endpoint = ‘dev.index’
             funcs = chain(funcs, self.url_default_functions.get(bp, ()))
         for func in funcs:
             func(endpoint, values)
