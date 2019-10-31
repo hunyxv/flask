@@ -412,7 +412,7 @@ class RequestContext(object):
                 self._preserved_exc = None
                 if exc is _sentinel:
                     exc = sys.exc_info()[1]
-                self.app.do_teardown_request(exc)
+                self.app.do_teardown_request(exc)                                   # 执行 terdown_request 来处理异常
 
                 # If this interpreter supports clearing the exception information
                 # we do that now.  This will only go into effect on Python 2.x,

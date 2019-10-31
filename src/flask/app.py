@@ -987,7 +987,7 @@ class Flask(_PackageBoundObject):
         from werkzeug.serving import run_simple
 
         try:
-            run_simple(host, port, self, **options)
+            run_simple(host, port, self, **options)                                 # 开始监听端口
         finally:
             # reset the first request information if the development server
             # reset normally.  This makes it possible to restart the server
