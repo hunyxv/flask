@@ -339,8 +339,8 @@ class Flask(_PackageBoundObject):
             "SESSION_REFRESH_EACH_REQUEST": True,
             "MAX_CONTENT_LENGTH": None,  # 如果设置为字节数， Flask 会拒绝内容长度大于此值的请求进入，并返回一个 413 状态码
             "SEND_FILE_MAX_AGE_DEFAULT": timedelta(hours=12),
-            "TRAP_BAD_REQUEST_ERRORS": None,
-            "TRAP_HTTP_EXCEPTIONS": False,
+            "TRAP_BAD_REQUEST_ERRORS": None, # werkzeug的BadRequestKeyError异常
+            "TRAP_HTTP_EXCEPTIONS": False, # 如果这个值被设置为 True ， Flask 不会执行 HTTP 异常的错误处理， 而是像对待其它异常一样，通过异常栈让它冒泡。 这对于需要找出 HTTP 异常源头的调试情形是有用的。
             "EXPLAIN_TEMPLATE_LOADING": False,
             "PREFERRED_URL_SCHEME": "http",
             "JSON_AS_ASCII": True,
@@ -495,15 +495,15 @@ class Flask(_PackageBoundObject):
         #: :meth:`teardown_request` decorator.
         #:
         #: .. versionadded:: 0.7
-        self.teardown_request_funcs = {}        ## 处理一些错误                     # 这里有一些说明： https://blog.csdn.net/regandu/article/details/80239543  https://blog.csdn.net/weixin_33843409/article/details/91445388
-
+        self.teardown_request_funcs = {}                                            # 处理一些错误, 请求上下文pop出时执行                   
+                                                                                    # 这里有一些说明： https://blog.csdn.net/regandu/article/details/80239543  https://blog.csdn.net/weixin_33843409/article/details/91445388
         #: A list of functions that are called when the application context
         #: is destroyed.  Since the application context is also torn down
         #: if the request ends this is the place to store code that disconnects
         #: from databases.
         #:
         #: .. versionadded:: 0.9
-        self.teardown_appcontext_funcs = []
+        self.teardown_appcontext_funcs = []                                         # 处理一些错误, 应用上下文pop出时执行 
 
         #: A dictionary with lists of functions that are called before the
         #: :attr:`before_request_funcs` functions. The key of the dictionary is
@@ -651,7 +651,7 @@ class Flask(_PackageBoundObject):
             return rv
         return self.debug
 
-    @locked_cached_property        # 描述器 -- 延迟计算属性并将第一次计算的结果缓存起来
+    @locked_cached_property                                                         # 描述器 -- 延迟计算属性并将第一次计算的结果缓存起来
     def logger(self):
         """A standard Python :class:`~logging.Logger` for the app, with
         the same name as :attr:`name`.
@@ -678,7 +678,7 @@ class Flask(_PackageBoundObject):
         """
         return create_logger(self)
 
-    @locked_cached_property       # 描述器 -- 延迟计算属性并将第一次计算的结果缓存起来
+    @locked_cached_property                                                         # 描述器 -- 延迟计算属性并将第一次计算的结果缓存起来
     def jinja_env(self):
         """The Jinja environment used to load templates.
 
@@ -714,7 +714,7 @@ class Flask(_PackageBoundObject):
         defaults["DEBUG"] = get_debug_flag()
         return self.config_class(root_path, defaults)
 
-    def auto_find_instance_path(self):                               # 自动获取 instance 文件路径
+    def auto_find_instance_path(self):                                              # 自动获取 instance 文件路径
         """Tries to locate the instance path if it was not provided to the
         constructor of the application class.  It will basically calculate
         the path to a folder named ``instance`` next to your main file or
@@ -727,7 +727,7 @@ class Flask(_PackageBoundObject):
             return os.path.join(package_path, "instance")
         return os.path.join(prefix, "var", self.name + "-instance")
 
-    def open_instance_resource(self, resource, mode="rb"):  # 只读打开 instance 文件
+    def open_instance_resource(self, resource, mode="rb"):                          # 只读打开 instance 文件
         """Opens a resource from the application's instance folder
         (:attr:`instance_path`).  Otherwise works like
         :meth:`open_resource`.  Instance resources can also be opened for
@@ -752,13 +752,13 @@ class Flask(_PackageBoundObject):
             already existed.
         """
         rv = self.config["TEMPLATES_AUTO_RELOAD"]   
-        return rv if rv is not None else self.debug    # debug 模式下为True
+        return rv if rv is not None else self.debug                                 # debug 模式下为True
 
-    @templates_auto_reload.setter                   # 设置 ‘自动重新加载模板’ 配置
+    @templates_auto_reload.setter                                                   # 设置 ‘自动重新加载模板’ 配置
     def templates_auto_reload(self, value):
         self.config["TEMPLATES_AUTO_RELOAD"] = value
 
-    def create_jinja_environment(self):         # 创建 jinja 环境
+    def create_jinja_environment(self):                                             # 创建 jinja 环境
         """Create the Jinja environment based on :attr:`jinja_options`
         and the various Jinja-related methods of the app. Changing
         :attr:`jinja_options` after this will have no effect. Also adds
@@ -773,10 +773,10 @@ class Flask(_PackageBoundObject):
         options = dict(self.jinja_options)
 
         if "autoescape" not in options:
-            options["autoescape"] = self.select_jinja_autoescape    # bool  对需要转义的文件进行筛选 ‘html htm xml xhtml’，jinja 自动转义功能
+            options["autoescape"] = self.select_jinja_autoescape                    # bool  对需要转义的文件进行筛选 ‘html htm xml xhtml’，jinja 自动转义功能
 
         if "auto_reload" not in options:
-            options["auto_reload"] = self.templates_auto_reload     # bool 是否 自动 reload
+            options["auto_reload"] = self.templates_auto_reload                     # bool 是否 自动 reload
 
         rv = self.jinja_environment(self, **options)
         rv.globals.update(
@@ -1243,7 +1243,7 @@ class Flask(_PackageBoundObject):
         # methods we can use that instead.  If neither exists, we go with
         # a tuple of only ``GET`` as default.
         if methods is None:
-            methods = getattr(view_func, "methods", None) or ("GET",)     # 一个视图函数默认的请求方式是 GET
+            methods = getattr(view_func, "methods", None) or ("GET",)               # 一个视图函数默认的请求方式是 GET
         if isinstance(methods, string_types):
             raise TypeError(
                 "Allowed methods have to be iterables of strings, "
@@ -1271,10 +1271,10 @@ class Flask(_PackageBoundObject):
         # Add the required methods now.
         methods |= required_methods
 
-        rule = self.url_rule_class(rule, methods=methods, **options)
+        rule = self.url_rule_class(rule, methods=methods, **options)                # 创建 rule
         rule.provide_automatic_options = provide_automatic_options
 
-        self.url_map.add(rule)
+        self.url_map.add(rule)    # 绑定 url map
         if view_func is not None:
             old_func = self.view_functions.get(endpoint)
             if old_func is not None and old_func != view_func:
@@ -1282,7 +1282,7 @@ class Flask(_PackageBoundObject):
                     "View function mapping is overwriting an "
                     "existing endpoint function: %s" % endpoint
                 )
-            self.view_functions[endpoint] = view_func
+            self.view_functions[endpoint] = view_func                               # 将视图函数放入 view_functions
 
     def route(self, rule, **options):
         """A decorator that is used to register a view function for a
@@ -1335,7 +1335,7 @@ class Flask(_PackageBoundObject):
         return decorator
 
     @staticmethod
-    def _get_exc_class_and_code(exc_class_or_code):
+    def _get_exc_class_and_code(exc_class_or_code):                                 # 获取异常类 和 错误码 500 400...
         """Get the exception class being handled. For HTTP status codes
         or ``HTTPException`` subclasses, return both the exception and
         status code.
@@ -1403,13 +1403,13 @@ class Flask(_PackageBoundObject):
         self._register_error_handler(None, code_or_exception, f)
 
     @setupmethod
-    def _register_error_handler(self, key, code_or_exception, f):
+    def _register_error_handler(self, key, code_or_exception, f):                   # 注册处理错误的函数
         """
         :type key: None|str
         :type code_or_exception: int|T<=Exception
         :type f: callable
         """
-        if isinstance(code_or_exception, HTTPException):  # old broken behavior
+        if isinstance(code_or_exception, HTTPException):                            # old broken behavior
             raise ValueError(
                 "Tried to register a handler for an exception instance {0!r}."
                 " Handlers can only be registered for exception classes or"
@@ -1428,7 +1428,7 @@ class Flask(_PackageBoundObject):
         handlers[exc_class] = f
 
     @setupmethod
-    def template_filter(self, name=None):
+    def template_filter(self, name=None):                                           # 注册自定义模板过滤器
         """A decorator that is used to register custom template filter.
         You can specify a name for the filter, otherwise the function
         name will be used. Example::
@@ -1458,7 +1458,7 @@ class Flask(_PackageBoundObject):
         self.jinja_env.filters[name or f.__name__] = f
 
     @setupmethod
-    def template_test(self, name=None):
+    def template_test(self, name=None):                                             # 自定义测试器 比如{% if age is number %} number 是内置测试器， 这个函数是用来自定义测试器的
         """A decorator that is used to register custom template test.
         You can specify a name for the test, otherwise the function
         name will be used. Example::
@@ -1646,11 +1646,11 @@ class Flask(_PackageBoundObject):
     @setupmethod
     def context_processor(self, f):
         """Registers a template context processor function."""
-        self.template_context_processors[None].append(f)
+        self.template_context_processors[None].append(f)                            # f 函数可以向 template 提供上下文环境
         return f
 
     @setupmethod
-    def shell_context_processor(self, f):
+    def shell_context_processor(self, f):                                           # 向shell 环境 提供上下文
         """Registers a shell context processor function.
 
         .. versionadded:: 0.11
@@ -1659,7 +1659,7 @@ class Flask(_PackageBoundObject):
         return f
 
     @setupmethod
-    def url_value_preprocessor(self, f):
+    def url_value_preprocessor(self, f):                                            # 注册 url 处理器，before_request 之前 可以处理
         """Register a URL value preprocessor function for all view
         functions in the application. These functions will be called before the
         :meth:`before_request` functions.
@@ -1676,7 +1676,7 @@ class Flask(_PackageBoundObject):
         return f
 
     @setupmethod
-    def url_defaults(self, f):   # url处理器的， https://www.cnblogs.com/iamluoli/p/11202234.html
+    def url_defaults(self, f):                                                      # url_for 时调用， https://www.cnblogs.com/iamluoli/p/11202234.html
         """Callback function for URL defaults for all view functions of the
         application.  It's called with the endpoint and values and should
         update the values passed in place.
@@ -1684,7 +1684,7 @@ class Flask(_PackageBoundObject):
         self.url_default_functions.setdefault(None, []).append(f)
         return f
 
-    def _find_error_handler(self, e):
+    def _find_error_handler(self, e):                                               # 根据 异常类型 获取异常类， 然后获取该类相对应的处理函数
         """Return a registered error handler for an exception in this order:
         blueprint handler for a specific code, app handler for a specific code,
         blueprint handler for an exception class, app handler for an exception
@@ -1740,7 +1740,7 @@ class Flask(_PackageBoundObject):
         handler = self._find_error_handler(e)
         if handler is None:
             return e
-        return handler(e)
+        return handler(e)                                                           # 执行 该错误相应的处理函数
 
     def trap_http_exception(self, e):
         """Checks if an HTTP exception should be trapped or not.  By default
@@ -1762,7 +1762,7 @@ class Flask(_PackageBoundObject):
         if self.config["TRAP_HTTP_EXCEPTIONS"]:
             return True
 
-        trap_bad_request = self.config["TRAP_BAD_REQUEST_ERRORS"]
+        trap_bad_request = self.config["TRAP_BAD_REQUEST_ERRORS"]                   # werkzeug的BadRequestKeyError异常
 
         # if unset, trap key errors in debug mode
         if (
@@ -1777,7 +1777,7 @@ class Flask(_PackageBoundObject):
 
         return False
 
-    def handle_user_exception(self, e):
+    def handle_user_exception(self, e):  # 执行 异常处理函数
         """This method is called whenever an exception occurs that
         should be handled. A special case is :class:`~werkzeug
         .exceptions.HTTPException` which is forwarded to the
@@ -1811,8 +1811,8 @@ class Flask(_PackageBoundObject):
             elif not hasattr(BadRequestKeyError, "show_exception"):
                 e.args = ()
 
-        if isinstance(e, HTTPException) and not self.trap_http_exception(e):
-            return self.handle_http_exception(e)
+        if isinstance(e, HTTPException) and not self.trap_http_exception(e):        # 判断是否为 HTTPException 并且 是否 通过异常栈让它冒泡。
+            return self.handle_http_exception(e)                                    # 执行 异常处理函数
 
         handler = self._find_error_handler(e)
 
@@ -1855,7 +1855,7 @@ class Flask(_PackageBoundObject):
         .. versionadded:: 0.3
         """
         exc_type, exc_value, tb = sys.exc_info()
-        got_request_exception.send(self, exception=e)
+        got_request_exception.send(self, exception=e)                               # 执行订阅 got-request-exception 信号的订阅者
 
         if self.propagate_exceptions:
             # if we want to repropagate the exception, we can attempt to
@@ -1907,10 +1907,9 @@ class Flask(_PackageBoundObject):
             raise request.routing_exception
 
         from .debughelpers import FormDataRoutingRedirect
-
         raise FormDataRoutingRedirect(request)
 
-    def dispatch_request(self):
+    def dispatch_request(self):                                                     # 执行视图函数
         """Does the request dispatching.  Matches the URL and returns the
         return value of the view or error handler.  This does not have to
         be a response object.  In order to convert the return value to a
@@ -1941,17 +1940,17 @@ class Flask(_PackageBoundObject):
 
         .. versionadded:: 0.7
         """
-        self.try_trigger_before_first_request_functions()
+        self.try_trigger_before_first_request_functions()                           # 应用第一次接收请求 执行一些初始化或其他的操作
         try:
-            request_started.send(self)
-            rv = self.preprocess_request()
-            if rv is None:
-                rv = self.dispatch_request()
+            request_started.send(self)                                              # 触发 request-started 信号， 执行订阅该信号的函数
+            rv = self.preprocess_request()                                          # 对 request 做预处理
+            if rv is None:                                                          # 若 preprocess_request 没有返回值，就执行 视图函数
+                rv = self.dispatch_request()                                        # 执行 视图函数 等钩子
         except Exception as e:
             rv = self.handle_user_exception(e)
         return self.finalize_request(rv)
 
-    def finalize_request(self, rv, from_error_handler=False):
+    def finalize_request(self, rv, from_error_handler=False):                       # 不管有无异常都执行，对函数（异常处理函数或视图函数） 包装成Response 返回 Response
         """Given the return value from a view function this finalizes
         the request by converting it into a response and invoking the
         postprocessing functions.  This is invoked for both normal
@@ -1966,8 +1965,8 @@ class Flask(_PackageBoundObject):
         """
         response = self.make_response(rv)
         try:
-            response = self.process_response(response)
-            request_finished.send(self, response=response)
+            response = self.process_response(response)                              # 执行 after_request_funcs， 添加 session
+            request_finished.send(self, response=response)                          # 触发 request-finished 信号， 执行订阅了该信号的函数
         except Exception:
             if not from_error_handler:
                 raise
@@ -2133,7 +2132,7 @@ class Flask(_PackageBoundObject):
 
         return rv
 
-    def create_url_adapter(self, request):   # 创建 url 转换器
+    def create_url_adapter(self, request):                                          # 创建 url 转换器
         """Creates a URL adapter for the given request. The URL adapter
         is created at a point where the request context is not yet set
         up so the request is passed explicitly.
@@ -2148,7 +2147,7 @@ class Flask(_PackageBoundObject):
             :data:`SERVER_NAME` no longer implicitly enables subdomain
             matching. Use :attr:`subdomain_matching` instead.
         """
-        if request is not None:       # 在这里可以看出 url_map 是跟去 request 上下文来转换的    
+        if request is not None:                                                     # 在这里可以看出 url_map 是跟去 request 上下文来转换的    
             # If subdomain matching is disabled (the default), use the
             # default subdomain in all cases. This should be the default
             # in Werkzeug but it currently does not have that feature.
@@ -2178,9 +2177,9 @@ class Flask(_PackageBoundObject):
 
         .. versionadded:: 0.7
         """
-        funcs = self.url_default_functions.get(None, ()) # url_default_functions
+        funcs = self.url_default_functions.get(None, ())                            # url_default_functions
         if "." in endpoint:
-            bp = endpoint.rsplit(".", 1)[0]                         # 例如 endpoint = ‘dev.index’
+            bp = endpoint.rsplit(".", 1)[0]                                         # 例如 endpoint = ‘dev.index’
             funcs = chain(funcs, self.url_default_functions.get(bp, ()))
         for func in funcs:
             func(endpoint, values)
@@ -2222,13 +2221,13 @@ class Flask(_PackageBoundObject):
         if bp is not None and bp in self.url_value_preprocessors:
             funcs = chain(funcs, self.url_value_preprocessors[bp])
         for func in funcs:
-            func(request.endpoint, request.view_args)
+            func(request.endpoint, request.view_args)                               # 执行 url 处理器 中的函数
 
         funcs = self.before_request_funcs.get(None, ())
         if bp is not None and bp in self.before_request_funcs:
             funcs = chain(funcs, self.before_request_funcs[bp])
         for func in funcs:
-            rv = func()
+            rv = func()                                                             # 执行 before_request_funcs 中的钩子，若有返回结果直接返回 rv Response
             if rv is not None:
                 return rv
 
@@ -2329,7 +2328,7 @@ class Flask(_PackageBoundObject):
 
         .. versionadded:: 0.9
         """
-        return AppContext(self)
+        return AppContext(self)                                                    # 应用上下文
 
     def request_context(self, environ):
         """Create a :class:`~flask.ctx.RequestContext` representing a
@@ -2345,9 +2344,9 @@ class Flask(_PackageBoundObject):
 
         :param environ: a WSGI environment
         """
-        return RequestContext(self, environ)
+        return RequestContext(self, environ)                                        # 请求上下文
 
-    def test_request_context(self, *args, **kwargs):
+    def test_request_context(self, *args, **kwargs):                                # 测试环境下通过变量创建 request context
         """Create a :class:`~flask.ctx.RequestContext` for a WSGI
         environment created from the given values. This is mostly useful
         during testing, where you may want to run a function that uses
@@ -2403,7 +2402,7 @@ class Flask(_PackageBoundObject):
         finally:
             builder.close()
 
-    def wsgi_app(self, environ, start_response):
+    def wsgi_app(self, environ, start_response):                                    # werkzeug 库 app
         """The actual WSGI application. This is not implemented in
         :meth:`__call__` so that middlewares can be applied without
         losing a reference to the app object. Instead of doing this::

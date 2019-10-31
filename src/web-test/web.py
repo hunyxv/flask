@@ -1,5 +1,11 @@
+import sys
+import os
+path = os.path.dirname(os.path.dirname(os.path.abspath(__name__)))
+sys.path.insert(0, '/home/hongyu/test/flask/src')
 from flask import Flask, url_for, request
 from blueprints.dev import bp
+import flask 
+print(flask.__file__)
 
 app = Flask(__name__, subdomain_matching=True)
 
