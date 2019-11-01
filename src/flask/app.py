@@ -1963,7 +1963,7 @@ class Flask(_PackageBoundObject):
 
         :internal:
         """
-        response = self.make_response(rv)
+        response = self.make_response(rv)                                           # rv 是 视图函数执行的结果
         try:
             response = self.process_response(response)                              # 执行 after_request_funcs， 添加 session
             request_finished.send(self, response=response)                          # 触发 request-finished 信号， 执行订阅了该信号的函数
@@ -2060,7 +2060,7 @@ class Flask(_PackageBoundObject):
         status = headers = None
 
         # unpack tuple returns
-        if isinstance(rv, tuple):
+        if isinstance(rv, tuple):                                                   # 如果 rv 是(body, status_code, header) tuple
             len_rv = len(rv)
 
             # a 3-tuple is unpacked directly
@@ -2089,16 +2089,16 @@ class Flask(_PackageBoundObject):
             )
 
         # make sure the body is an instance of the response class
-        if not isinstance(rv, self.response_class):
+        if not isinstance(rv, self.response_class):                                 # 判断视图函数返回值是否是 wrappers.Response 类型
             if isinstance(rv, (text_type, bytes, bytearray)):
                 # let the response class set the status and headers instead of
                 # waiting to do it manually, so that the class can handle any
                 # special logic
-                rv = self.response_class(rv, status=status, headers=headers)
+                rv = self.response_class(rv, status=status, headers=headers)        # 如果 rv 是 unicode 或 bytes 或 二进制数组 则创建 wrappers.Response 实例
                 status = headers = None
-            elif isinstance(rv, dict):
+            elif isinstance(rv, dict):                                              # 如果 rv 是 dict 则json化，并 创建 wrappers.Response 实例
                 rv = jsonify(rv)
-            elif isinstance(rv, BaseResponse) or callable(rv):
+            elif isinstance(rv, BaseResponse) or callable(rv):                      # 如果 rv 是 werkzeug.BaseResponse 或 是可调用对象
                 # evaluate a WSGI callable, or coerce a different response
                 # class to the correct type
                 try:
