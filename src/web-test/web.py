@@ -21,7 +21,7 @@ def stream(environ, start_response):
         start_response(200, None)
     return s()
 
-@app.after_request
+#@app.after_request
 def getresponse_data(response):
     data = response.get_data()
     print('response data:', data)
@@ -32,12 +32,12 @@ def getresponse_data(response):
 
 @app.route('/', endpoint='index')
 def index():
-    print(request)
+    print(request.environ)
     print(_request_ctx_stack.top)
     print(app.url_map)
-    #return url_for('index', _external=True)
+    return url_for('index', _external=True)
     # return app                                                                    # 这里可以返回一个可调用对象，但
-    return stream
+    # return stream
     # 配置好 app.config['SERVER_NAME']="example.com:5000" 后输出 http://example.com:5000/ （测试的话需要修改host）
 
 @app.route('/', subdomain='test', endpoint='test.index')
