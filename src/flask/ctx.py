@@ -214,7 +214,7 @@ class AppContext(object):
     def __init__(self, app):
         self.app = app
         self.url_adapter = app.create_url_adapter(None)
-        self.g = app.app_ctx_globals_class()
+        self.g = app.app_ctx_globals_class()                                        # 应用上下， 类似一个字典
 
         # Like request context, app contexts can be pushed multiple times
         # but there a basic "refcount" is enough to track them.
@@ -226,7 +226,7 @@ class AppContext(object):
         if hasattr(sys, "exc_clear"):
             sys.exc_clear()
         _app_ctx_stack.push(self)
-        appcontext_pushed.send(self.app)
+        appcontext_pushed.send(self.app)                                            # 触发 push 信号
 
     def pop(self, exc=_sentinel):
         """Pops the app context."""
@@ -239,13 +239,13 @@ class AppContext(object):
         finally:
             rv = _app_ctx_stack.pop()
         assert rv is self, "Popped wrong app context.  (%r instead of %r)" % (rv, self)
-        appcontext_popped.send(self.app)
+        appcontext_popped.send(self.app)                                            # 触发 pop 信号
 
-    def __enter__(self):
+    def __enter__(self):                                                            # with ... as 时调用
         self.push()
         return self
 
-    def __exit__(self, exc_type, exc_value, tb):
+    def __exit__(self, exc_type, exc_value, tb):                                    # 结束 with ... as 时调用
         self.pop(exc_value)
 
         if BROKEN_PYPY_CTXMGR_EXIT and exc_type is not None:

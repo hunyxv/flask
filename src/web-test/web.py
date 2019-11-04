@@ -2,7 +2,7 @@ import sys
 import os
 path = os.path.dirname(os.path.dirname(os.path.abspath(__name__)))
 sys.path.insert(0, '/home/hongyu/test/flask/src')
-from flask import Flask, url_for, request, _request_ctx_stack
+from flask import Flask, url_for, request, _request_ctx_stack, g, _app_ctx_stack
 from blueprints.dev import bp
 import flask 
 print(flask.__file__)
@@ -32,10 +32,27 @@ def getresponse_data(response):
 
 @app.route('/', endpoint='index')
 def index():
+    print('- - '*10)
     print(request.environ)
     print(_request_ctx_stack.top)
     print(app.url_map)
-    return url_for('index', _external=True)
+
+    adapter = app.create_url_adapter(request)
+    print(adapter.test('/', method='POST'))  # False
+    print(adapter.match(return_rule=True))
+    print(_app_ctx_stack.top.g == g) # True , but not is
+    print(_app_ctx_stack.top.g.__dict__, g.__dict__)
+    print(request == _request_ctx_stack.top.request)  # True
+    print('- - '*10)
+    response = app.make_response(url_for('index', _external=True))
+    #response.freeze()
+    print(response.response)
+    print(response.get_wsgi_headers(request))
+    @response.call_on_close
+    def func():
+        print('response 关闭了!')
+
+    return response
     # return app                                                                    # 这里可以返回一个可调用对象，但
     # return stream
     # 配置好 app.config['SERVER_NAME']="example.com:5000" 后输出 http://example.com:5000/ （测试的话需要修改host）

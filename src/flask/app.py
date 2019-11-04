@@ -512,7 +512,7 @@ class Flask(_PackageBoundObject):
         #: :meth:`url_value_preprocessor`.
         #:
         #: .. versionadded:: 0.7
-        self.url_value_preprocessors = {}  # 在 url 匹配传参时比如 /user/<id> 一但匹配到就执行这里面的函数，例子 https://www.cnblogs.com/iamluoli/p/11202234.html
+        self.url_value_preprocessors = {}                                           # 在 url 匹配传参时比如 /user/<id> 一但匹配到就执行这里面的函数，例子 https://www.cnblogs.com/iamluoli/p/11202234.html
 
         #: A dictionary with lists of functions that can be used as URL value
         #: preprocessors.  The key ``None`` here is used for application wide
@@ -524,7 +524,7 @@ class Flask(_PackageBoundObject):
         #: automatically again that were removed that way.
         #:
         #: .. versionadded:: 0.7
-        self.url_default_functions = {}  # url_for时调用， 如果在 执行 url_value_preprocessors 时将url参数pop出，获取有其他需求是调用 https://www.cnblogs.com/iamluoli/p/11202234.html
+        self.url_default_functions = {}                                             # url_for时调用， 如果在 执行 url_value_preprocessors 时将url参数pop出，获取有其他需求是调用 https://www.cnblogs.com/iamluoli/p/11202234.html
 
         #: A dictionary with list of functions that are called without argument
         #: to populate the template context.  The key of the dictionary is the
@@ -2439,7 +2439,8 @@ class Flask(_PackageBoundObject):
             except:  # noqa: B001
                 error = sys.exc_info()[1]
                 raise
-            return response(environ, start_response)
+            return response(environ, start_response)                                # 先执行 start_response 再返回网页内容
+                                                                                    # start_response(status, response_headers, exc_info=None)
         finally:
             if self.should_ignore_error(error):
                 error = None
