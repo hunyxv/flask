@@ -38,15 +38,20 @@ def index():
     print(app.url_map)
 
     adapter = app.create_url_adapter(request)
-    print(adapter.test('/', method='POST'))  # False
+    print(adapter.test('/', method='POST'))                                         # False
     print(adapter.match(return_rule=True))
-    print(_app_ctx_stack.top.g == g) # True , but not is
+    print(_app_ctx_stack.top.g == g)                                                # True , but not is
     print(_app_ctx_stack.top.g.__dict__, g.__dict__)
-    print(request == _request_ctx_stack.top.request)  # True
+    print(request == _request_ctx_stack.top.request)                                # True
     print('- - '*10)
     response = app.make_response(url_for('index', _external=True))
+    l = lambda: sum([len(_) for _ in response.response])
+    response.make_conditional(request, accept_ranges=True, complete_length=l())  
+    print(response.content_range)                                                   # bytes 0-20/24
+    print('cache_control:{}'.format(response.cache_control))
+    print('accept_ranges:',response.accept_ranges)                                  # bytes
     #response.freeze()
-    print(response.response)
+    #print(response.response)                                                       # 响应内容
     print(response.get_wsgi_headers(request))
     @response.call_on_close
     def func():
