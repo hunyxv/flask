@@ -248,7 +248,7 @@ class Flask(_PackageBoundObject):
     #:
     #: This attribute can also be configured from the config with the
     #: ``TESTING`` configuration key.  Defaults to ``False``.
-    testing = ConfigAttribute("TESTING")  # ConfigAttriute 是一个描述其， 对 该配置的操作都映射到 app.config
+    testing = ConfigAttribute("TESTING")                                            # ConfigAttriute 是一个描述器， 对 该配置的操作都映射到 app.config
 
     #: If a secret key is set, cryptographic components can use this to
     #: sign cookies and other things. Set this to a complex random value
@@ -512,7 +512,7 @@ class Flask(_PackageBoundObject):
         #: :meth:`url_value_preprocessor`.
         #:
         #: .. versionadded:: 0.7
-        self.url_value_preprocessors = {}                                           # 在 url 匹配传参时比如 /user/<id> 一但匹配到就执行这里面的函数，例子 https://www.cnblogs.com/iamluoli/p/11202234.html
+        self.url_value_preprocessors = {}                                           # 在 url 匹配传参时比如 /user/<id> 该方法在请求（request）匹配成功立马执行，执行的代码基于URL传递的values。，例子 https://www.cnblogs.com/iamluoli/p/11202234.html
 
         #: A dictionary with lists of functions that can be used as URL value
         #: preprocessors.  The key ``None`` here is used for application wide
@@ -562,7 +562,7 @@ class Flask(_PackageBoundObject):
         #: ``'foo'``.
         #:
         #: .. versionadded:: 0.7
-        self.extensions = {}    #　存放第三方扩展对象的地方
+        self.extensions = {}                                                        #　存放第三方扩展对象的地方
 
         #: The :class:`~werkzeug.routing.Map` for this instance.  You can use
         #: this to change the routing converters after the class was created
@@ -727,7 +727,7 @@ class Flask(_PackageBoundObject):
             return os.path.join(package_path, "instance")
         return os.path.join(prefix, "var", self.name + "-instance")
 
-    def open_instance_resource(self, resource, mode="rb"):                          # 只读打开 instance 文件
+    def open_instance_resource(self, resource, mode="rb"):                          # 只读打开 instance 文件夹中的资源
         """Opens a resource from the application's instance folder
         (:attr:`instance_path`).  Otherwise works like
         :meth:`open_resource`.  Instance resources can also be opened for
@@ -740,7 +740,7 @@ class Flask(_PackageBoundObject):
         return open(os.path.join(self.instance_path, resource), mode)
 
     @property
-    def templates_auto_reload(self):   # 自动重新加载模板文件配置项
+    def templates_auto_reload(self):                                                # 自动重新加载模板文件配置项
         """Reload templates when they are changed. Used by
         :meth:`create_jinja_environment`.
 
