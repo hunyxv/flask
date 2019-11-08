@@ -1922,7 +1922,7 @@ class Flask(_PackageBoundObject):
         req = _request_ctx_stack.top.request
         if req.routing_exception is not None:
             self.raise_routing_exception(req)
-        rule = req.url_rule
+        rule = req.url_rule                                                         # 请求的 url 路径
         # if we provide automatic options for this URL and the
         # request came with the OPTIONS method, reply automatically
         if (
