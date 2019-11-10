@@ -1646,7 +1646,7 @@ class Flask(_PackageBoundObject):
     @setupmethod
     def context_processor(self, f):
         """Registers a template context processor function."""
-        self.template_context_processors[None].append(f)                            # f 函数可以向 template 提供上下文环境
+        self.template_context_processors[None].append(f)                            # 注册模板上下文处理器函数
         return f
 
     @setupmethod

@@ -41,7 +41,7 @@ def index():
     print(adapter.test('/', method='POST'))                                         # False
     print(adapter.match(return_rule=True))
     print(_app_ctx_stack.top.g == g)                                                # True , but not is
-    print(_app_ctx_stack.top.g.__dict__, g.__dict__)
+    print('g:::::',_app_ctx_stack.top.g.__dict__, g.__dict__)
     print(request == _request_ctx_stack.top.request)                                # True
     print('- - '*10)
     response = app.make_response(url_for('index', _external=True))
@@ -62,12 +62,38 @@ def index():
     # return stream
     # 配置好 app.config['SERVER_NAME']="example.com:5000" 后输出 http://example.com:5000/ （测试的话需要修改host）
 
+@app.url_value_preprocessor
+def url_value_handle(endpoint, value):
+    if value.get('lange_code', None):
+        g.setdefault('lange_code', value.pop('lange_code'))
+
+
+@app.url_defaults
+def add_language_code(endpoint, value):
+    if 'lange_code' in value or not g.get('lange_code', None):
+        return
+    
+    if app.url_map.is_endpoint_expecting(endpoint, 'lange_code'):
+        value['lange_code'] = g.get('lange_code')
+
+@app.route('/lang/<string:lange_code>')
+def lang():
+    print(g.get('lange_code'))
+    return url_for('lang', lange_code=g.get('lange_code'))
+
+@app.route('/lang/<string:lange_code>/about')
+def about():
+    print('about {}'.format(g.get('lange_code')))
+    return url_for('about')
+
 @app.route('/', subdomain='test', endpoint='test.index')
 def test():
     print(request.url)
     print(app.url_map)
     print([i for i in app.url_map.iter_rules('index')])
     return url_for('test.index', _external=True)    # http://test.example.com:5000/
+
+
 
 
 if __name__ == "__main__":
