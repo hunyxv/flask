@@ -6,6 +6,8 @@ bp = Blueprint('dev-test', __name__, subdomain='dev')
 def index():
     print(request.environ)
     print(request.url)
+    print(request.blueprint)
+    print(request.form.getlist)
     return 'admin page, {}'.format(url_for('dev-test.index', _external=True))# url_for('.index') ‘.’ 会首先在当前 蓝图寻找
 
 

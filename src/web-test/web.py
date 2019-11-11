@@ -2,7 +2,7 @@ import sys
 import os
 path = os.path.dirname(os.path.dirname(os.path.abspath(__name__)))
 sys.path.insert(0, '/home/hongyu/test/flask/src')
-from flask import Flask, url_for, request, _request_ctx_stack, g, _app_ctx_stack
+from flask import Flask, url_for, request, _request_ctx_stack, g, _app_ctx_stack, current_app
 from blueprints.dev import bp
 import flask 
 print(flask.__file__)
@@ -91,6 +91,8 @@ def test():
     print(request.url)
     print(app.url_map)
     print([i for i in app.url_map.iter_rules('index')])
+    print('===='*20)
+    print(current_app.__dict__)
     return url_for('test.index', _external=True)    # http://test.example.com:5000/
 
 

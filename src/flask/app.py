@@ -403,9 +403,9 @@ class Flask(_PackageBoundObject):
         self,
         import_name,
         static_url_path=None,
-        static_folder="static",  #  static_url_path / static_folder / static_host / host_matching 组合可以访问远程主机执行目录下的静态资源
-        static_host=None,    # 提供静态文件的主机的地址， 使用 static_host 时要传递 host_matching 访问方法有(OPTIONS, HEAD, GET)，
-        host_matching=False,  #  host_matching 和 static_host 组合更改静态资源的访问地址(主机:端口)
+        static_folder="static",                                                     # static_url_path / static_folder / static_host / host_matching 组合可以访问远程主机执行目录下的静态资源
+        static_host=None,                                                           # 提供静态文件的主机的地址， 使用 static_host 时要传递 host_matching 访问方法有(OPTIONS, HEAD, GET)，
+        host_matching=False,                                                        # host_matching 和 static_host 组合更改静态资源的访问地址(主机:端口)
         subdomain_matching=False,
         template_folder="templates",
         instance_path=None,
@@ -627,7 +627,7 @@ class Flask(_PackageBoundObject):
         return self.import_name
 
     @property
-    def propagate_exceptions(self):
+    def propagate_exceptions(self):                                                 # 是否传播异常
         """Returns the value of the ``PROPAGATE_EXCEPTIONS`` configuration
         value in case it's set, otherwise a sensible default is returned.
 
@@ -1777,8 +1777,8 @@ class Flask(_PackageBoundObject):
 
         return False
 
-    def handle_user_exception(self, e):  # 执行 异常处理函数
-        """This method is called whenever an exception occurs that
+    def handle_user_exception(self, e):                                             # 每当发生异常时应调用此方法
+        """This method is called whenever an exception occurs that    
         should be handled. A special case is :class:`~werkzeug
         .exceptions.HTTPException` which is forwarded to the
         :meth:`handle_http_exception` method. This function will either
@@ -1817,10 +1817,10 @@ class Flask(_PackageBoundObject):
         handler = self._find_error_handler(e)
 
         if handler is None:
-            reraise(exc_type, exc_value, tb)
+            reraise(exc_type, exc_value, tb)                                        # 触发异常 handle_exception 会处理此类异常
         return handler(e)
 
-    def handle_exception(self, e):
+    def handle_exception(self, e):                                                  # 处理没有关联的错误处理程序或异常处理程序引发的异常
         """Handle an exception that did not have an error handler
         associated with it, or that was raised from an error handler.
         This always causes a 500 ``InternalServerError``.
@@ -1857,7 +1857,7 @@ class Flask(_PackageBoundObject):
         exc_type, exc_value, tb = sys.exc_info()
         got_request_exception.send(self, exception=e)                               # 执行订阅 got-request-exception 信号的订阅者
 
-        if self.propagate_exceptions:
+        if self.propagate_exceptions:                                               # 是否传播异常
             # if we want to repropagate the exception, we can attempt to
             # raise it with the whole traceback in case we can do that
             # (the function was actually called from the except part)

@@ -60,7 +60,7 @@ class BlueprintSetupState(object):
         #: A dictionary with URL defaults that is added to each and every
         #: URL that was defined with the blueprint.
         self.url_defaults = dict(self.blueprint.url_values_defaults)
-        self.url_defaults.update(self.options.get("url_defaults", ()))
+        self.url_defaults.update(self.options.get("url_defaults", ()))              # 蓝图 的url处理器
 
     def add_url_rule(self, rule, endpoint=None, view_func=None, **options):
         """A helper method to register a rule (and optionally a view function)
@@ -192,7 +192,7 @@ class Blueprint(_PackageBoundObject):
         self.url_values_defaults = url_defaults
         self.cli_group = cli_group
 
-    def record(self, func):
+    def record(self, func):                                                         # 注册在 应用程序中注册蓝图时 调用的函数。 由 make_setup_state 方法返回的状态作为参数调用此函数。
         """Registers a function that is called when the blueprint is
         registered on the application.  This function is called with the
         state as argument as returned by the :meth:`make_setup_state`
@@ -210,7 +210,7 @@ class Blueprint(_PackageBoundObject):
             )
         self.deferred_functions.append(func)
 
-    def record_once(self, func):
+    def record_once(self, func):                                                    # 与 record 类似，但是将函数包装在另一个函数中，以确保该函数仅被调用一次。
         """Works like :meth:`record` but wraps the function in another
         function that will ensure the function is only called once.  If the
         blueprint is registered a second time on the application, the
@@ -291,7 +291,7 @@ class Blueprint(_PackageBoundObject):
             assert (
                 "." not in view_func.__name__
             ), "Blueprint view function name should not contain dots"
-        self.record(lambda s: s.add_url_rule(rule, endpoint, view_func, **options))
+        self.record(lambda s: s.add_url_rule(rule, endpoint, view_func, **options)) # 在 register 时会执行 add_url_rule 函数， s 是 state
 
     def endpoint(self, endpoint):
         """Like :meth:`Flask.endpoint` but for a blueprint.  This does not
@@ -310,7 +310,7 @@ class Blueprint(_PackageBoundObject):
 
         return decorator
 
-    def app_template_filter(self, name=None):
+    def app_template_filter(self, name=None):                                       # 添加模板过滤器
         """Register a custom template filter, available application wide.  Like
         :meth:`Flask.template_filter` but for a blueprint.
 
@@ -338,7 +338,7 @@ class Blueprint(_PackageBoundObject):
 
         self.record_once(register_template)
 
-    def app_template_test(self, name=None):
+    def app_template_test(self, name=None):                                         # 添加模板测试器 {% if 100 is number %}
         """Register a custom template test, available application wide.  Like
         :meth:`Flask.template_test` but for a blueprint.
 
@@ -386,7 +386,7 @@ class Blueprint(_PackageBoundObject):
 
         return decorator
 
-    def add_app_template_global(self, f, name=None):
+    def add_app_template_global(self, f, name=None):                                # 添加 模板 全局变量
         """Register a custom template global, available application wide.  Like
         :meth:`Flask.add_template_global` but for a blueprint.  Works exactly
         like the :meth:`app_template_global` decorator.
@@ -402,7 +402,7 @@ class Blueprint(_PackageBoundObject):
 
         self.record_once(register_template)
 
-    def before_request(self, f):
+    def before_request(self, f):                                                    # 蓝图 before_request 钩子
         """Like :meth:`Flask.before_request` but for a blueprint.  This function
         is only executed before each request that is handled by a function of
         that blueprint.
@@ -412,7 +412,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def before_app_request(self, f):
+    def before_app_request(self, f):                                                # app before_request 钩子
         """Like :meth:`Flask.before_request`.  Such a function is executed
         before each request, even if outside of a blueprint.
         """
@@ -421,14 +421,14 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def before_app_first_request(self, f):
+    def before_app_first_request(self, f):                                          # app first_request 钩子
         """Like :meth:`Flask.before_first_request`.  Such a function is
         executed before the first request to the application.
         """
         self.record_once(lambda s: s.app.before_first_request_funcs.append(f))
         return f
 
-    def after_request(self, f):
+    def after_request(self, f):                                                     # 蓝图 after_request 钩子
         """Like :meth:`Flask.after_request` but for a blueprint.  This function
         is only executed after each request that is handled by a function of
         that blueprint.
@@ -438,7 +438,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def after_app_request(self, f):
+    def after_app_request(self, f):                                                  # app after_request 钩子
         """Like :meth:`Flask.after_request` but for a blueprint.  Such a function
         is executed after each request, even if outside of the blueprint.
         """
@@ -447,7 +447,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def teardown_request(self, f):
+    def teardown_request(self, f):                                                  # 蓝图 teardown_request 钩子
         """Like :meth:`Flask.teardown_request` but for a blueprint.  This
         function is only executed when tearing down requests handled by a
         function of that blueprint.  Teardown request functions are executed
@@ -459,7 +459,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def teardown_app_request(self, f):
+    def teardown_app_request(self, f):                                              # app teardown_request 钩子
         """Like :meth:`Flask.teardown_request` but for a blueprint.  Such a
         function is executed when tearing down each request, even if outside of
         the blueprint.
@@ -469,7 +469,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def context_processor(self, f):
+    def context_processor(self, f):                                                 # 上下文处理器， 添加模板上下文 环境变量
         """Like :meth:`Flask.context_processor` but for a blueprint.  This
         function is only executed for requests handled by a blueprint.
         """
@@ -480,7 +480,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def app_context_processor(self, f):
+    def app_context_processor(self, f):                                             # app 上下文处理器
         """Like :meth:`Flask.context_processor` but for a blueprint.  Such a
         function is executed each request, even if outside of the blueprint.
         """
@@ -489,7 +489,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def app_errorhandler(self, code):
+    def app_errorhandler(self, code):                                               # 全局 异常处理器
         """Like :meth:`Flask.errorhandler` but for a blueprint.  This
         handler is used for all requests, even if outside of the blueprint.
         """
@@ -500,7 +500,7 @@ class Blueprint(_PackageBoundObject):
 
         return decorator
 
-    def url_value_preprocessor(self, f):
+    def url_value_preprocessor(self, f):                                            # 为此蓝图 配置一 url 预值处理器
         """Registers a function as URL value preprocessor for this
         blueprint.  It's called before the view functions are called and
         can modify the url values provided.
@@ -510,7 +510,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def url_defaults(self, f):
+    def url_defaults(self, f):                                                      # 为此蓝图配置 url 处理器
         """Callback function for URL defaults for this blueprint.  It's called
         with the endpoint and values and should update the values passed
         in place.
@@ -520,7 +520,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def app_url_value_preprocessor(self, f):
+    def app_url_value_preprocessor(self, f):                                        # 为 app 配置 url 预值处理器
         """Same as :meth:`url_value_preprocessor` but application wide.
         """
         self.record_once(
@@ -528,7 +528,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def app_url_defaults(self, f):
+    def app_url_defaults(self, f):                                                  # 为此 app 配置 url 处理器
         """Same as :meth:`url_defaults` but application wide.
         """
         self.record_once(
@@ -536,7 +536,7 @@ class Blueprint(_PackageBoundObject):
         )
         return f
 
-    def errorhandler(self, code_or_exception):
+    def errorhandler(self, code_or_exception):                                      # 为 蓝图 设置异常处理器： 装饰器
         """Registers an error handler that becomes active for this blueprint
         only.  Please be aware that routing does not happen local to a
         blueprint so an error handler for 404 usually is not handled by
@@ -556,7 +556,7 @@ class Blueprint(_PackageBoundObject):
 
         return decorator
 
-    def register_error_handler(self, code_or_exception, f):
+    def register_error_handler(self, code_or_exception, f):                         # # 为 蓝图 设置异常处理器： 非装饰器
         """Non-decorator version of the :meth:`errorhandler` error attach
         function, akin to the :meth:`~flask.Flask.register_error_handler`
         application-wide function of the :class:`~flask.Flask` object but
