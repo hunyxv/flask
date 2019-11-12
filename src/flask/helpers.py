@@ -549,7 +549,7 @@ def send_file(
     :param mimetype: the mimetype of the file if provided. If a file path is
                      given, auto detection happens as fallback, otherwise an
                      error will be raised.
-    :param as_attachment: set to ``True`` if you want to send this file with
+    :param as_attachment: set to ``True`` if you want to send this file with   # 关于 Context-Disposition https://www.jianshu.com/p/4c52cb691f54
                           a ``Content-Disposition: attachment`` header.
     :param attachment_filename: the filename for the attachment if it
                                 differs from the file's filename.
