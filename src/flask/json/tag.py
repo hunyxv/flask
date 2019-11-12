@@ -172,7 +172,9 @@ class TagBytes(JSONTag):
 class TagMarkup(JSONTag):
     """Serialize anything matching the :class:`~flask.Markup` API by
     having a ``__html__`` method to the result of that method. Always
-    deserializes to an instance of :class:`~flask.Markup`."""
+    deserializes to an instance of :class:`~flask.Markup`.
+    将 dict、tuple、{...}(PassDict PassList 指的是直接json转)、[...]、Bytes、flask.Markup、UUID、datetime 转成json
+    """
 
     __slots__ = ()
     key = " m"
@@ -215,7 +217,7 @@ class TagDateTime(JSONTag):
         return parse_date(value)
 
 
-class TaggedJSONSerializer(object):
+class TaggedJSONSerializer(object):         # 将不是 json 的类型序列化 转成json，然后传递给 itsdangerous.Serializer
     """Serializer that uses a tag system to compactly represent objects that
     are not JSON types. Passed as the intermediate serializer to
     :class:`itsdangerous.Serializer`.

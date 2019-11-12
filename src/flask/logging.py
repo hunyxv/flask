@@ -27,7 +27,7 @@ def wsgi_errors_stream():
     can't import this directly, you can refer to it as
     ``ext://flask.logging.wsgi_errors_stream``.
     """
-    return request.environ["wsgi.errors"] if request else sys.stderr
+    return request.environ["wsgi.errors"] if request else sys.stderr    # wsgi.errors 默认就是 sys.stderr 标准输出
 
 
 def has_level_handler(logger):

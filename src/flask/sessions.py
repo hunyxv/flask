@@ -19,7 +19,8 @@ from werkzeug.datastructures import CallbackDict
 from ._compat import collections_abc
 from .helpers import is_ip
 from .helpers import total_seconds
-from .json.tag import TaggedJSONSerializer
+from .json.tag import TaggedJSONSerializer    
+# 将 dict、tuple、{...}(PassDict PassList 指的是直接json转)、[...]、Bytes、flask.Markup、UUID、datetime 转成json
 
 
 class SessionMixin(collections_abc.MutableMapping):
